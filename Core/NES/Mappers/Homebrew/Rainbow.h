@@ -154,6 +154,7 @@ protected:
 	bool EnableCustomVramRead() override { return true; }
 
 	void InitMapper() override;
+	void InitMapper(RomData& romData) override;
 	void SaveBattery() override;
 	void Reset(bool softReset) override;
 	void OnAfterResetPowerOn() override;

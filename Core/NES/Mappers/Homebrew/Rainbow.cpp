@@ -610,7 +610,6 @@ uint8_t Rainbow::ReadRegister(uint16_t addr)
 		if(addr >= 0x4282) {
 			_oamCodeLocked = false;
 		}
-		// return _oamCode[addr - 0x4280];
 		return _oamCode[addr - 0x4200];
 	}
 
@@ -1121,7 +1120,7 @@ void Rainbow::Serialize(Serializer& s)
 	SV(_oamExtUpdatePage);
 	SV(_oamSlowUpdatePage);
 	SV(_oamSpriteTarget);
-	SVArray(_oamCode, 0x506);
+	SVArray(_oamCode, 0x600);
 	SV(_oamCodeLocked);
 
 	SV(_espEnabled);

@@ -551,8 +551,7 @@ uint8_t Rainbow::ReadRegister(uint16_t addr)
 			UpdateIrqStatus();
 			return (
 				((uint8_t)_inHBlank << 7) |
-				((uint8_t)_inFrame << 6) |
-				(uint8_t)_slIrqPending);
+				((uint8_t)_inFrame << 6));
 
 		case 0x4154: return _jitterCounter;
 		case 0x4157: return ((uint8_t)_parityCounter << 7);

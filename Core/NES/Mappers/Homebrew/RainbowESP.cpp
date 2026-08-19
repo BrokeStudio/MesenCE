@@ -1,4 +1,3 @@
-#pragma once
 #include "pch.h"
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "NES/Mappers/Homebrew/RainbowESP.h"
@@ -1680,13 +1679,12 @@ void RainbowEsp::loadFileSystems()
 
 void RainbowEsp::loadFileSystem(uint8_t drive, string fsname)
 {
-	uint8_t* fileContent = new uint8_t[ESP_FLASH_SIZE];
+	std::vector<uint8_t> fileContent(ESP_FLASH_SIZE);
 
 	// try to open file system file
 	ifstream ifs(fsname, ios::binary);
 	if(ifs.fail()) {
 		MessageManager::Log("[Rainbow] Could not open file system file '" + fsname + "' (file does not exist?)");
-		delete fileContent;
 		return;
 	}
 
@@ -1710,7 +1708,6 @@ void RainbowEsp::loadFileSystem(uint8_t drive, string fsname)
 		fileContent[5] != 'S' ||
 		fileContent[6] != 0x1a) {
 		MessageManager::Log("[Rainbow] File system file header is invalid");
-		delete fileContent;
 		return;
 	}
 
@@ -1774,8 +1771,6 @@ void RainbowEsp::loadFileSystem(uint8_t drive, string fsname)
 	} else {
 		MessageManager::Log("[Rainbow] File system file format version unknown");
 	}
-
-	delete fileContent;
 }
 
 void RainbowEsp::saveFileSystems()
@@ -2270,15 +2265,16 @@ std::pair<bool, sockaddr> RainbowEsp::resolve_address(string address, uint16_t p
 	return std::make_pair(result, sa);
 }
 
-namespace
-{
-	size_t download_write_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
-	{
-		vector<uint8_t>* data = reinterpret_cast<vector<uint8_t>*>(userdata);
-		data->insert(data->end(), reinterpret_cast<uint8_t*>(ptr), reinterpret_cast<uint8_t*>(ptr + size * nmemb));
-		return size * nmemb;
-	}
-}
+// disabled because CURL is not available for now
+// namespace
+// {
+// 	size_t download_write_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
+// 	{
+// 		vector<uint8_t>* data = reinterpret_cast<vector<uint8_t>*>(userdata);
+// 		data->insert(data->end(), reinterpret_cast<uint8_t*>(ptr), reinterpret_cast<uint8_t*>(ptr + size * nmemb));
+// 		return size * nmemb;
+// 	}
+// }
 
 void RainbowEsp::initDownload()
 {

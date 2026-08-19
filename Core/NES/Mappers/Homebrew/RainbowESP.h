@@ -51,7 +51,7 @@ static const uint8_t DBG_CFG_DEV_LOG = 0x01;
 static const uint8_t DBG_CFG_SERIAL = 0x02;
 static const uint8_t DBG_CFG_NETWORK = 0x04;
 
-struct NetworkInfo : public ISerializable
+struct NetworkInfo final : public ISerializable
 {
 	string ssid;
 	string pass;
@@ -71,7 +71,7 @@ struct FileConfig
 	uint8_t drive;
 };
 
-struct FileStruct : public ISerializable
+struct FileStruct final : public ISerializable
 {
 	uint8_t drive;
 	string filename;
@@ -95,7 +95,7 @@ struct WorkingFile
 	int32_t fileIndex = -1;
 };
 
-struct UPDpoolAddress : public ISerializable
+struct UPDpoolAddress final : public ISerializable
 {
 	string ipAddress;
 	uint16_t port;
@@ -107,7 +107,7 @@ struct UPDpoolAddress : public ISerializable
 	}
 };
 
-class RainbowEsp : public ISerializable
+class RainbowEsp final : public ISerializable
 {
 public:
 	RainbowEsp(Emulator* emu, const string& fsPath);

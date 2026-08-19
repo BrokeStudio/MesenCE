@@ -156,6 +156,11 @@ jobs:
 
   macos:
     if: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository) }}
+    env:
+      # Build deployable binaries for macOS 12 and newer.  The certificate is
+      # optional so forks and test builds can still produce unsigned artifacts.
+      MACOSX_DEPLOYMENT_TARGET: '12.0'
+      MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
     strategy:
       matrix:
         compiler: [clang, clang_aot]
@@ -205,10 +210,10 @@ jobs:
           ${{ matrix.make_flags }} make -j$(sysctl -n hw.logicalcpu)
 
       - name: Sign binary
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.MACOS_CERTIFICATE != ''
         env:
           APP_NAME: bin/osx-${{ matrix.platform.arch }}/Release/osx-${{ matrix.platform.arch }}/publish/Mesen.app
-          CERT_DATA: ${{ secrets.MACOS_CERTIFICATE }}
+          CERT_DATA: ${{ env.MACOS_CERTIFICATE }}
           CERT_PASS: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           ENTITLEMENTS: UI/Mesen.entitlements
           SIGNING_IDENTITY: Mesen

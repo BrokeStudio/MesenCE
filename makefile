@@ -42,6 +42,8 @@ ifeq ($(UNAME_S),Darwin)
 	LTO := false
 	STATICLINK := false
 	LINKCHECKUNRESOLVED :=
+	MACOSX_DEPLOYMENT_TARGET ?= 12.0
+	MESENFLAGS += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
 endif
 
 MESENFLAGS += -m64

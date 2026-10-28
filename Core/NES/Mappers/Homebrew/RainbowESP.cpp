@@ -1673,13 +1673,13 @@ void RainbowEsp::appendFile(I data_begin, I data_end)
 
 void RainbowEsp::loadFileSystems()
 {
-	loadFileSystem(0, this->fsPath + ".esp.fs");
-	loadFileSystem(2, this->fsPath + ".sd.fs");
+	loadFileSystem(0, ESP_FLASH_SIZE, this->fsPath + ".esp.fs");
+	loadFileSystem(2, SD_CARD_SIZE, this->fsPath + ".sd.fs");
 }
 
-void RainbowEsp::loadFileSystem(uint8_t drive, string fsname)
+void RainbowEsp::loadFileSystem(uint8_t drive, size_t driveSize, string fsname)
 {
-	std::vector<uint8_t> fileContent(ESP_FLASH_SIZE);
+	std::vector<uint8_t> fileContent(driveSize);
 
 	// try to open file system file
 	ifstream ifs(fsname, ios::binary);
@@ -1691,7 +1691,7 @@ void RainbowEsp::loadFileSystem(uint8_t drive, string fsname)
 	// TODO: store only file name, file size and data offset in file system file
 	//			then open file system each file for R/W operations
 	// copy file system content to buffer
-	for(size_t i = 0; i < ESP_FLASH_SIZE; i++) {
+	for(size_t i = 0; i < driveSize; i++) {
 		if(ifs.peek() == EOF) break;
 		fileContent[i] = ifs.get();
 	}
@@ -1719,7 +1719,7 @@ void RainbowEsp::loadFileSystem(uint8_t drive, string fsname)
 	// check version
 	if(fileContent[7] == 0) {
 		size_t i = 8;
-		while(i < ESP_FLASH_SIZE) {
+		while(i < driveSize) {
 
 			// check file separator
 			if(fileContent[i] == 0xff) {

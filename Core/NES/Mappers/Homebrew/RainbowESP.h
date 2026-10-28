@@ -420,7 +420,7 @@ private:
 	// physical file system files in the same folder as the game ROM
 	string fsPath;
 	void loadFileSystems();
-	void loadFileSystem(uint8_t drive, string fsname);
+	void loadFileSystem(uint8_t drive, size_t driveSize, string fsname);
 	void saveFileSystems();
 	void saveFileSystem(uint8_t drive, string fsname);
 

@@ -318,7 +318,7 @@ void Rainbow::UpdateInWindowFlag()
 		yMatch = scanline >= _windowY1 && scanline <= _windowY2;
 	}
 
-	uint8_t column = (_ntFetchCounter + 1) % 50;
+	uint8_t column = ((_ntFetchCounter + 1) % 50) & 0x1F;
 	if(_windowX1 > _windowX2) {
 		xMatch = column <= _windowX2 || column >= _windowX1;
 	} else {
@@ -335,10 +335,6 @@ uint8_t Rainbow::MapperReadVram(uint16_t addr, MemoryOperationType memoryOperati
 		if(absAddr.Address >= 0 && absAddr.Type == MemoryType::NesChrRom) {
 			return _chrFlash->Read(absAddr.Address);
 		}
-	}
-
-	if(!_inFrame) {
-		_windowPosY = _windowScrollY;
 	}
 
 	_ppuReadCounter++;
@@ -365,7 +361,6 @@ uint8_t Rainbow::MapperReadVram(uint16_t addr, MemoryOperationType memoryOperati
 			_ntFetchCounter++;
 			if(_ntFetchCounter == 33) {
 				_inHBlank = true;
-				_windowPosY = _windowPosY == 239 ? 0 : _windowPosY + 1;
 			}
 			_inWindow = false;
 
@@ -378,12 +373,14 @@ uint8_t Rainbow::MapperReadVram(uint16_t addr, MemoryOperationType memoryOperati
 
 		uint8_t shift = 0;
 		if(_inWindow) {
+			uint8_t scanline = _ntFetchCounter >= 49 ? _scanlineCounter + 1 : _scanlineCounter;
+			uint8_t windowScanline = (scanline + _windowScrollY) % 240;
 			uint8_t column = (_ntFetchCounter + 1) % 50;
-			uint16_t ntAddr = ((_windowPosY / 8 * 32) + ((column + _windowScrollX) & 0x1F));
+			uint16_t ntAddr = ((windowScanline / 8 * 32) + ((column + _windowScrollX) & 0x1F));
 			if(!isAttributeFetch) {
 				addr = ntAddr;
 			} else {
-				addr = 0x3C0 + (((_windowPosY >> 2) & 0xF8) | (((column + _windowScrollX) & 0x1F) >> 2));
+				addr = 0x3C0 + (((windowScanline >> 2) & 0xF8) | (((column + _windowScrollX) & 0x1F) >> 2));
 				shift = ((ntAddr >> 4) & 0x04) | (ntAddr & 0x02);
 			}
 		}
@@ -420,11 +417,13 @@ uint8_t Rainbow::MapperReadVram(uint16_t addr, MemoryOperationType memoryOperati
 		//Tile data fetches
 		bool isBgFetch = _ntFetchCounter < 33 || _ntFetchCounter >= 49;
 		if(_inWindow && isBgFetch) {
+			uint8_t scanline = _ntFetchCounter >= 49 ? _scanlineCounter + 1 : _scanlineCounter;
+			uint8_t windowScanline = (scanline + _windowScrollY) % 240;
 			if(_overrideTileFetch) {
-				uint32_t fetchAddr = (addr & 0xFF8) | (_windowPosY & 0x07) | ((_extData & 0x3F) << 12) | (_bgExtModeOffset << 18);
+				uint32_t fetchAddr = (addr & 0xFF8) | (windowScanline & 0x07) | ((_extData & 0x3F) << 12) | (_bgExtModeOffset << 18);
 				return ReadChr(fetchAddr, addr);
 			} else {
-				uint32_t fetchAddr = (addr & 0x1FF8) | (_windowPosY & 0x07);
+				uint32_t fetchAddr = (addr & 0x1FF8) | (windowScanline & 0x07);
 				return InternalReadVram(fetchAddr);
 			}
 		} else if(_overrideTileFetch && isBgFetch) {
@@ -1099,7 +1098,6 @@ void Rainbow::Serialize(Serializer& s)
 	SV(_windowY2);
 	SV(_windowScrollX);
 	SV(_windowScrollY);
-	SV(_windowPosY);
 	SV(_inWindow);
 	SV(_slIrqEnabled);
 	SV(_slIrqPending);

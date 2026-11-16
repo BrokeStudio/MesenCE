@@ -1164,6 +1164,7 @@ void Rainbow::EspCheckNewMessage()
 			_mapperRam[0x1800 + (_recvDstAddr << 8) + 1 + i] = _esp->tx();
 		}
 		_dataReceived = true;
+		UpdateIrqStatus();
 	}
 }
 

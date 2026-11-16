@@ -301,7 +301,6 @@ void Rainbow::ProcessCpuClock()
 			_scanlineCounter = -1;
 			_ntFetchCounter = 0;
 			_ntReadCounter = 0;
-			_oamAddr = 0;
 		}
 	}
 }
@@ -491,8 +490,6 @@ void Rainbow::ProcessSpriteEval()
 	uint8_t spriteCount = 0;
 	int scanline = _scanlineCounter;
 	int height = (_largeSprites ? 16 : 8);
-
-	memset(_oamMappings, 0, sizeof(_oamMappings));
 
 	for(int i = 0; i < 64; i++) {
 		uint8_t y = _oamPosY[i];
